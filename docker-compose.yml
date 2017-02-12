@@ -1,0 +1,38 @@
+version: '2'
+
+services:
+  postgresql:
+    image: postgres:9.3
+    environment:
+    - POSTGRES_PASSWORD=root
+    - POSTGRES_USER=root
+    container_name: postgresql-server
+    networks:
+      vpcbr:  
+       ipv4_address: 10.30.0.5
+    
+  sparkjava-springboot:
+    image: openjdk:8-jre
+   
+    volumes:
+      - $PWD/build/distributions:/opt/spring
+    working_dir: /opt/spring
+    command: bash -c 'export _JAVA_OPTIONS="-Xmx45m -Xss256k" && tar -xf *.tar && SparkSpringBoot-*/bin/SparkSpringBoot'
+    mem_limit: 50m
+    memswap_limit: 0
+    depends_on:
+      - postgresql
+    networks:
+      vpcbr:  
+       ipv4_address: 10.30.0.6  
+      
+      
+networks:
+  vpcbr:
+    driver: bridge
+    ipam:
+      config:
+      - subnet: 10.30.0.0/16
+        gateway: 10.30.0.1
+             
+    
